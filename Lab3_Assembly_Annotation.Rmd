@@ -1,0 +1,12 @@
+---
+title: "Lab3_Assembly_Annotation"
+author: "Mendel Kwan"
+date: "2025-09-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
