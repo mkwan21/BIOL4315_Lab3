@@ -8,5 +8,108 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+## Load Required Libraries
 
+```{r Libraries include=FALSE}
+library(IRanges)
+library(GenomicRanges)
+library(Rsamtools)
+library(GenomicAlignments)
+library(Gviz)
+```
+## Question 1
 
+```{r Flye_Output}
+cat("Total length:", "12756536", "\n", sep = "\t")
+cat("Fragments:", "356", "\n", sep = "\t")
+cat("Fragments N50:", "51072", "\n", sep = "\t")
+cat("Largest frg:", "302368", "\n", sep = "\t")
+cat("Scaffolds:", "0", "\n", sep = "\t")
+cat("Mean coverage:", "8", "\n", sep = "\t")
+```
+
+Since the number of base pairs in the assembly is about the same as the number of base pairs in the reference genome (12 million), we could assume a complete genome.
+
+The coverage (8) may not be adequate.  This means we have less confidence in our base calls.
+
+## Question 2
+
+```{r BUSCO_Results}
+cat("Completeness:", "33.7%", "\n", sep = "\t")
+cat("Single:  ", "33.6%", "\n", sep = "\t")
+cat("Duplicate:", "0.1%", "\n", sep = "\t")
+cat("Fragmented:", "0.4%", "\n", sep = "\t")
+cat("Missing:", "65.8%", "\n", sep = "\t")
+
+```
+
+Given the poor coverage, getting one third of the genes is reasonable.
+
+The N50 from BUSCO (51 kbp) is the same as the N50 from flye (511072 bp).
+
+The total assembly length is 12756536 bp.
+
+## Question 3
+
+The genome fraction from quast is 52.9%. The genome fraction from BUSCO is 33.7%.
+
+The duplication ratio from quast is 1.049.
+
+According to quast there are 0 misassemblies with length 0.  This, along with the low genome fraction, suggests the reference genome does not do a good job representing the genomic diversity of the species.
+
+## Question 4
+samtools faidx ./data/GCF_000146045.2_R64_genomic.fna
+samtools faidx ./data/GCF_000146045.2_R64_genomic.fna NC_001133.9 > R64_chr1.fna
+
+Note: The name was changed manually from NC_001133.9 to CHR1.
+
+## Question 5
+minimap2 -t 8 -ax asm5 ./data/R64_chr1.fna ./output/flye_output/assembly.fasta > ./output/contig_vs_chr1.sam
+samtools view -bS ./output/contig_vs_chr1.sam > ./output/contig_vs_chr1.bam
+samtools sort ./output/contig_vs_chr1.bam -o ./output/contig_vs_chr1.sorted.bam
+samtools index ./output/contig_vs_chr1.sorted.bam
+
+```{r Contigs_Aligned_to_Chromosome_1}
+bam_file ="./output/contig_vs_chr1.sorted.bam"
+bam = BamFile(bam_file)
+alns <- readGAlignments(bam)
+gr_alns = granges(alns)
+aln_track <- AnnotationTrack(gr_alns, name = "Contigs")
+axis_track <- GenomeAxisTrack()
+plotTracks(list(axis_track, aln_track), from = min(start(gr_alns)), to = max(end(gr_alns)), main = "Contigs Aligned to Chromosome 1")
+plotTracks(list(axis_track, aln_track), from = 90000, to = 100000, main = "Contigs Aligned to Chromosome 1")
+plotTracks(list(axis_track, aln_track), from = 200000, to = max(end(gr_alns)), main = "Contigs Aligned to Chromosome 1")
+```
+There are two contigs aligned with chromosome 1.
+
+## Question 6
+
+cd ./output
+seqkit stats flye_output/assembly.fasta
+seqkit sort flye_output/assembly.fasta -l -r > assembly_sorted_by_length.fasta
+seqkit head -n 1 assembly_sorted_by_length.fasta > ./output/flye_output/longest_contig.fasta
+seqkit stats longest_contig.fasta
+
+Note: The name was changed manually from contig_169 to CHR1.
+
+Download the CDS File
+wget -nc https://ftp.ncbi.nlm.nih.gov/genomes/refseq/fungi/Saccharomyces_cerevisiae/latest_assembly_versions/GCF_000146045.2_R64/GCF_000146045.2_R64_cds_from_genomic.fna.gz
+
+## Question 7
+cd ./output
+minimap2 -ax splice -uf --secondary=no longest_contig.fasta GCF_000146045.2_R64_cds_from_genomic.fna > cds_aln.sam
+samtools view -bS cds_aln.sam > cds_aln.bam
+samtools sort cds_aln.bam -o cds_aln.sorted.bam
+samtools index cds_aln.sorted.bam
+
+## Question 8
+
+```{r Coding_Sequences_Aligned_to_Largest_Contig}
+bam_file ="./output/cds_aln.sorted.bam"
+bam = BamFile(bam_file)
+alns <- readGAlignments(bam)
+gr_alns = granges(alns)
+aln_track <- AnnotationTrack(gr_alns, name = "CDS")
+axis_track <- GenomeAxisTrack()
+plotTracks(list(axis_track, aln_track), from = min(start(gr_alns)), to = max(end(gr_alns)), main = "Coding Sequences Aligned to Longest Contig")
+```
