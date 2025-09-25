@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Load Required Libraries
 
-```{r Libraries include=FALSE}
+```{r Libraries, include = FALSE}
 library(IRanges)
 library(GenomicRanges)
 library(Rsamtools)
@@ -19,7 +19,7 @@ library(Gviz)
 ```
 ## Question 1
 
-```{r Flye_Output}
+```{r Flye_Output, echo = FALSE}
 cat("Total length:", "12756536", "\n", sep = "\t")
 cat("Fragments:", "356", "\n", sep = "\t")
 cat("Fragments N50:", "51072", "\n", sep = "\t")
@@ -34,7 +34,7 @@ The coverage (8) may not be adequate.  This means we have less confidence in our
 
 ## Question 2
 
-```{r BUSCO_Results}
+```{r BUSCO_Results, echo = FALSE}
 cat("Completeness:", "33.7%", "\n", sep = "\t")
 cat("Single:  ", "33.6%", "\n", sep = "\t")
 cat("Duplicate:", "0.1%", "\n", sep = "\t")
@@ -45,25 +45,27 @@ cat("Missing:", "65.8%", "\n", sep = "\t")
 
 Given the poor coverage, getting one third of the genes is reasonable.
 
-The N50 from BUSCO (51 kbp) is the same as the N50 from flye (511072 bp).
+The N50 from BUSCO (51 kbp) is the same as the N50 from flye (51072 bp).
 
 The total assembly length is 12756536 bp.
 
 ## Question 3
 
-The genome fraction from quast is 52.9%. The genome fraction from BUSCO is 33.7%.
+The genome fraction from quast is 52.9%. The genome fraction from BUSCO is 33.7%.  The genome fraction from quast is slightly greater.
 
 The duplication ratio from quast is 1.049.
 
-According to quast there are 0 misassemblies with length 0.  This, along with the low genome fraction, suggests the reference genome does not do a good job representing the genomic diversity of the species.
+According to quast there are 0 misassemblies with total length 0.  This, along with the low genome fraction, suggests the reference genome does not do a good job representing the genomic diversity of the species.
 
 ## Question 4
+
 samtools faidx ./data/GCF_000146045.2_R64_genomic.fna
 samtools faidx ./data/GCF_000146045.2_R64_genomic.fna NC_001133.9 > R64_chr1.fna
 
 Note: The name was changed manually from NC_001133.9 to CHR1.
 
 ## Question 5
+
 minimap2 -t 8 -ax asm5 ./data/R64_chr1.fna ./output/flye_output/assembly.fasta > ./output/contig_vs_chr1.sam
 samtools view -bS ./output/contig_vs_chr1.sam > ./output/contig_vs_chr1.bam
 samtools sort ./output/contig_vs_chr1.bam -o ./output/contig_vs_chr1.sorted.bam
