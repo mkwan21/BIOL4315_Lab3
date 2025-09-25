@@ -1,0 +1,6 @@
+.Rproj.user
+data/
+output/
+R64_chr1.fna
+*.bam
+*.bai

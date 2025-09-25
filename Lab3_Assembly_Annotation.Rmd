@@ -82,7 +82,11 @@ plotTracks(list(axis_track, aln_track), from = min(start(gr_alns)), to = max(end
 plotTracks(list(axis_track, aln_track), from = 90000, to = 100000, main = "Contigs Aligned to Chromosome 1")
 plotTracks(list(axis_track, aln_track), from = 200000, to = max(end(gr_alns)), main = "Contigs Aligned to Chromosome 1")
 ```
+
+
 There are two contigs aligned with chromosome 1.
+
+![](align_contigs_to_chromosome1.png)
 
 ## Question 6
 
@@ -115,3 +119,4 @@ aln_track <- AnnotationTrack(gr_alns, name = "CDS")
 axis_track <- GenomeAxisTrack()
 plotTracks(list(axis_track, aln_track), from = min(start(gr_alns)), to = max(end(gr_alns)), main = "Coding Sequences Aligned to Longest Contig")
 ```
+![](align_cds_to_longest_contig.png)
